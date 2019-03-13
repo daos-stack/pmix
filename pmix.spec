@@ -473,8 +473,8 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pmix/*.so
 %{_libdir}/pmix/*.la
 %{_includedir}/*
-%{_mandir}/man3/*
-%{_mandir}/man7/*
+#%{_mandir}/man3/*
+#%{_mandir}/man7/*
 
 %files
 %defattr(-, root, root, -)
