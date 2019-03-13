@@ -231,6 +231,14 @@ scalability.
 
 This RPM contains all the tools necessary to compile and link against PMIx.
 
+%package devel
+Summary: Development files for the PMIx library
+Group: System Environment/Libraries
+Requires: %{name}%{?_isa} = %{version}-%{release}
+
+%description devel
+Development files for the PMIx library.
+
 #############################################################################
 #
 # Prepatory Section
@@ -459,13 +467,21 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 # files.
 #
 
+%files devel
+%{_libdir}/*.so
+%{_libdir}/*.la
+%{_libdir}/pmix/*.so
+%{_libdir}/pmix/*.la
+%{_includedir}/*
+#%{_mandir}/man3/*
+#%{_mandir}/man7/*
+
 %files
 %defattr(-, root, root, -)
 %if %(test "%{_prefix}" = "/usr" && echo 1 || echo 0)
 #%{_bindir}/*
-%{_includedir}/*
-%{_libdir}/*
-%{_datadir}
+%{_libdir}/*.so.*
+%{_datadir}/pmix
 %else
 %{_prefix}
 %endif
@@ -498,6 +514,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 #
 #############################################################################
 %changelog
+* Wed Mar 13 2019 Brian J. Murrell <brian.murrell@intel.com>
+- Add BuildReuires: libevent-devel
+- Add -devel subpackage
+
 * Thu Sep 21 2017 Ralph Castain <rhc@open-mpi.org>
 - Add PMIx etc directory
 
