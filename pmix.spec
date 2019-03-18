@@ -514,7 +514,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 #
 #############################################################################
 %changelog
-* Mon Mar 15 2019 Brian J. Murrell <brian.murrell@intel.com>
+* Mon Mar 18 2019 Brian J. Murrell <brian.murrell@intel.com>
 - Don't package .la files
 - Put /usr/lib64/pmix into the main package
 
