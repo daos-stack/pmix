@@ -193,7 +193,7 @@
 Summary: An extended/exascale implementation of PMI
 Name: %{?_name:%{_name}}%{!?_name:pmix}
 Version: 2.1.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: BSD
 Group: Development/Libraries
 Source0: https://github.com/pmix/pmix/releases/download/v%{version}/pmix-%{version}.tar.bz2
@@ -355,6 +355,8 @@ export CFLAGS CXXFLAGS FCFLAGS
 # We don't need that in an RPM.
 find $RPM_BUILD_ROOT -name config.log -exec rm -f {} \;
 
+find %{?buildroot} -name *.la -print0 | xargs -r0 rm -f
+
 # First, the [optional] modulefile
 
 %if %{install_modulefile}
@@ -468,11 +470,8 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 #
 
 %files devel
-%{_libdir}/*.so
-%{_libdir}/*.la
-%{_libdir}/pmix/*.so
-%{_libdir}/pmix/*.la
 %{_includedir}/*
+%{_libdir}/*.so
 #%{_mandir}/man3/*
 #%{_mandir}/man7/*
 
@@ -481,6 +480,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 %if %(test "%{_prefix}" = "/usr" && echo 1 || echo 0)
 #%{_bindir}/*
 %{_libdir}/*.so.*
+%{_libdir}/pmix/*.so
 %{_datadir}/pmix
 %else
 %{_prefix}
@@ -514,6 +514,10 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 #
 #############################################################################
 %changelog
+* Mon Mar 18 2019 Brian J. Murrell <brian.murrell@intel.com>
+- Don't package .la files
+- Put /usr/lib64/pmix into the main package
+
 * Wed Mar 13 2019 Brian J. Murrell <brian.murrell@intel.com>
 - Add BuildReuires: libevent-devel
 - Add -devel subpackage
