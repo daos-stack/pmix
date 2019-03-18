@@ -1,6 +1,6 @@
 NAME        := pmix
 VERSION     := 2.1.1
-RELEASE     := 1
+RELEASE     := 2
 DIST        := $(shell rpm --eval %{dist})
 SRPM        := _topdir/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)$(DIST).src.rpm
 RPMS        := _topdir/RPMS/x86_64/$(NAME)-$(VERSION)-$(RELEASE)$(DIST).x86_64.rpm           \
