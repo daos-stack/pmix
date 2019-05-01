@@ -38,3 +38,5 @@ RUN zypper --non-interactive install gcc-c++
 RUN zypper --non-interactive --no-gpg-check install openpa-devel      \
                                                     libfabric-devel   \
                                                     cmake boost-devel
+# pmix
+RUN zypper --non-interactive install libevent-devel
