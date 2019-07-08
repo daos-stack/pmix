@@ -24,10 +24,9 @@ RUN zypper --non-interactive update
 RUN zypper --non-interactive install make rpm-build curl createrepo git    \
                                      lsb-release autoconf automake libtool \
                                      ca-certificates-mozilla
-# libfabric
-RUN zypper --non-interactive install rdma-core-devel libnl3-devel        \
-                                     infinipath-psm-devel valgrind-devel
+
 # pmix
+RUN zypper --non-interactive install gcc-c++ libevent-devel
 RUN zypper --non-interactive install libevent-devel
 
 # force an upgrade to get any newly built RPMs
