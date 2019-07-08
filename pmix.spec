@@ -193,18 +193,33 @@
 Summary: An extended/exascale implementation of PMI
 Name: %{?_name:%{_name}}%{!?_name:pmix}
 Version: 2.1.1
-Release: 2%{?dist}
+Release: 3%{?dist}
 License: BSD
+%if 0%{?sle_version} >= 120000
+Group: Development/Libraries/C and C++
+%else
 Group: Development/Libraries
+%endif
 Source0: https://github.com/pmix/pmix/releases/download/v%{version}/pmix-%{version}.tar.bz2
 Packager: %{?_packager:%{_packager}}%{!?_packager:%{_vendor}}
 Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:%{_vendor}}
 Distribution: %{?_distribution:%{_distribution}}%{!?_distribution:%{_vendor}}
 Prefix: %{_prefix}
-Provides: pmix
-Provides: pmix = %{version}
+#Provides: pmix = %{version}
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-root
 BuildRequires: libevent-devel
+BuildRequires: zlib-devel
+BuildRequires: libtool-ltdl-devel
+BuildRequires: gcc-c++
+BuildRequires: pandoc
+BuildRequires: flex
+%if 0%{?sle_version} >= 150000
+# have choice for libffi.so.7()(64bit) needed by pandoc: ghc-bootstrap libffi7
+# have choice for libffi.so.7(LIBFFI_BASE_7.0)(64bit) needed by pandoc: ghc-bootstrap libffi7
+# have choice for libffi.so.7(LIBFFI_CLOSURE_7.0)(64bit) needed by pandoc: ghc-bootstrap libffi7
+BuildRequires: libffi7
+%endif
+
 %if %{disable_auto_requires}
 AutoReq: no
 %endif
@@ -339,7 +354,7 @@ FCFLAGS="%{?fcflags:%{fcflags}}%{!?fcflags:$RPM_OPT_FLAGS}"
 export CFLAGS CXXFLAGS FCFLAGS
 
 %configure %{configure_options}
-%{__make} %{?mflags}
+%{make_build}
 
 
 #############################################################################
@@ -349,7 +364,7 @@ export CFLAGS CXXFLAGS FCFLAGS
 #############################################################################
 
 %install
-%{__make} install DESTDIR=$RPM_BUILD_ROOT %{?mflags_install}
+%{make_install}
 
 # We've had cases of config.log being left in the installation tree.
 # We don't need that in an RPM.
@@ -456,6 +471,18 @@ rm -rf $RPM_BUILD_DIR/%{name}-%{version}
 
 test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 
+#%if 0%{?suse_version} >= 01315
+#%post -n %{suse_libname} -p /sbin/ldconfig
+
+#%postun -n %{suse_libname} -p /sbin/ldconfig
+
+#%else
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+#%endif
+
 #############################################################################
 #
 # Files Section
@@ -472,14 +499,15 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 %files devel
 %{_includedir}/*
 %{_libdir}/*.so
-#%{_mandir}/man3/*
-#%{_mandir}/man7/*
+%{_mandir}/man3/*
+%{_mandir}/man7/*
 
 %files
 %defattr(-, root, root, -)
 %if %(test "%{_prefix}" = "/usr" && echo 1 || echo 0)
 #%{_bindir}/*
 %{_libdir}/*.so.*
+%dir %{_libdir}/pmix
 %{_libdir}/pmix/*.so
 %{_datadir}/pmix
 %else
@@ -487,7 +515,7 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 %endif
 # If the sysconfdir is not under the prefix, then list it explicitly.
 %if !%{sysconfdir_in_prefix}
-%{_sysconfdir}/*
+%config %{_sysconfdir}/*
 %endif
 # If %{install_in_opt}, then we're instaling PMIx to
 # /opt/pmix<version>.  But be sure to also explicitly mention
@@ -514,6 +542,11 @@ test "x$RPM_BUILD_ROOT" != "x" && rm -rf $RPM_BUILD_ROOT
 #
 #############################################################################
 %changelog
+* Mon Oct 07 2019 Brian J. Murrell <brian.murrell@intel.com> - 2.1.1-3
+- Add missing BRs
+- Use %make_{build,install} macros
+- Add %post ldconfig calls
+
 * Mon Mar 18 2019 Brian J. Murrell <brian.murrell@intel.com>
 - Don't package .la files
 - Put /usr/lib64/pmix into the main package
