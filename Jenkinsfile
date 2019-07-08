@@ -82,24 +82,30 @@ pipeline {
                     steps {
                         sh '''rm -rf artifacts/centos7/
                               mkdir -p artifacts/centos7/
-                              if make srpm; then
-                                  if make mockbuild; then
-                                      (cd /var/lib/mock/epel-7-x86_64/result/ &&
-                                       cp -r . $OLDPWD/artifacts/centos7/)
-                                      createrepo artifacts/centos7/
-                                  else
-                                      rc=\${PIPESTATUS[0]}
-                                      (cd /var/lib/mock/epel-7-x86_64/result/ &&
-                                       cp -r . $OLDPWD/artifacts/centos7/)
-                                      cp -af _topdir/SRPMS artifacts/centos7/
-                                      exit \$rc
-                                  fi
-                              else
-                                  exit \${PIPESTATUS[0]}
-                              fi'''
+                              make srpm
+                              make mockbuild'''
                     }
                     post {
-                        always {
+                        success {
+                             sh '''(cd /var/lib/mock/epel-7-x86_64/result/ &&
+                                    cp -r . $OLDPWD/artifacts/centos7/)
+                                   createrepo artifacts/centos7/'''
+                            archiveArtifacts artifacts: 'artifacts/centos7/**'
+                        }
+                        failure {
+                            sh '''cp -af _topdir/SRPMS artifacts/centos7/
+                                  (cd /var/lib/mock/epel-7-x86_64/result/ &&
+                                   cp -r . $OLDPWD/artifacts/centos7/)
+                                  (cd /var/lib/mock/epel-7-x86_64/root/builddir/build/BUILD/*/
+                                   find . -name configure -printf %h\\\\n | \
+                                   while read dir; do
+                                       if [ ! -f $dir/config.log ]; then
+                                           continue
+                                       fi
+                                       tdir="$OLDPWD/artifacts/centos7/autoconf-logs/$dir"
+                                       mkdir -p $tdir
+                                       cp -a $dir/config.log $tdir/
+                                   done)'''
                             archiveArtifacts artifacts: 'artifacts/centos7/**'
                         }
                     }
@@ -119,20 +125,27 @@ pipeline {
                         sh '''rm -rf artifacts/sles12.3/
                               mkdir -p artifacts/sles12.3/
                               rm -rf _topdir/SRPMS
-                              if make srpm; then
-                                  rm -rf _topdir/RPMS
-                                  if make rpms; then
-                                      ln _topdir/{RPMS/*,SRPMS}/*  artifacts/sles12.3/
-                                      createrepo artifacts/sles12.3/
-                                  else
-                                      exit \${PIPESTATUS[0]}
-                                  fi
-                              else
-                                  exit \${PIPESTATUS[0]}
-                              fi'''
+                              make srpm
+                              rm -rf _topdir/RPMS
+                              make rpms'''
                     }
                     post {
-                        always {
+                        success {
+                            sh '''ln _topdir/{RPMS/*,SRPMS}/*  artifacts/sles12.3/
+                                  createrepo artifacts/sles12.3/'''
+                            archiveArtifacts artifacts: 'artifacts/sles12.3/**'
+                        }
+                        failure {
+                            sh '''(cd _topdir/BUILD/*/
+                                   find . -name configure -printf %h\\\\n | \
+                                   while read dir; do
+                                       if [ ! -f $dir/config.log ]; then
+                                           continue
+                                       fi
+                                       tdir="$OLDPWD/artifacts/sles12.3/autoconf-logs/$dir"
+                                       mkdir -p $tdir
+                                       cp -a $dir/config.log $tdir/
+                                   done)'''
                             archiveArtifacts artifacts: 'artifacts/sles12.3/**'
                         }
                     }
@@ -152,20 +165,27 @@ pipeline {
                         sh '''rm -rf artifacts/leap42.3/
                               mkdir -p artifacts/leap42.3/
                               rm -rf _topdir/SRPMS
-                              if make srpm; then
-                                  rm -rf _topdir/RPMS
-                                  if make rpms; then
-                                      ln _topdir/{RPMS/*,SRPMS}/*  artifacts/leap42.3/
-                                      createrepo artifacts/leap42.3/
-                                  else
-                                      exit \${PIPESTATUS[0]}
-                                  fi
-                              else
-                                  exit \${PIPESTATUS[0]}
-                              fi'''
+                              make srpm
+                              rm -rf _topdir/RPMS
+                              make rpms'''
                     }
                     post {
-                        always {
+                        success {
+                            sh '''ln _topdir/{RPMS/*,SRPMS}/*  artifacts/leap42.3/
+                                  createrepo artifacts/leap42.3/'''
+                            archiveArtifacts artifacts: 'artifacts/leap42.3/**'
+                        }
+                        failure {
+                            sh '''(cd _topdir/BUILD/*/
+                                   find . -name configure -printf %h\\\\n | \
+                                   while read dir; do
+                                       if [ ! -f $dir/config.log ]; then
+                                           continue
+                                       fi
+                                       tdir="$OLDPWD/artifacts/leap42.3/autoconf-logs/$dir"
+                                       mkdir -p $tdir
+                                       cp -a $dir/config.log $tdir/
+                                   done)'''
                             archiveArtifacts artifacts: 'artifacts/leap42.3/**'
                         }
                     }
