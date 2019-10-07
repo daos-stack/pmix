@@ -353,11 +353,8 @@ FCFLAGS="%{?fcflags:%{fcflags}}%{!?fcflags:$RPM_OPT_FLAGS}"
 export CFLAGS CXXFLAGS FCFLAGS
 
 %configure %{configure_options}
-if %{defined make_build}
+%{!?make_build: %define make_build %{__make} %{?_smp_mflags}}
 %{make_build}
-%else
-%{__make} %{?_smp_mflags}
-%endif
 
 
 #############################################################################
