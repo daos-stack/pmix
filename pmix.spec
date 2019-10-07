@@ -205,7 +205,6 @@ Packager: %{?_packager:%{_packager}}%{!?_packager:%{_vendor}}
 Vendor: %{?_vendorinfo:%{_vendorinfo}}%{!?_vendorinfo:%{_vendor}}
 Distribution: %{?_distribution:%{_distribution}}%{!?_distribution:%{_vendor}}
 Prefix: %{_prefix}
-#Provides: pmix = %{version}
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-root
 BuildRequires: libevent-devel
 BuildRequires: zlib-devel
@@ -354,7 +353,11 @@ FCFLAGS="%{?fcflags:%{fcflags}}%{!?fcflags:$RPM_OPT_FLAGS}"
 export CFLAGS CXXFLAGS FCFLAGS
 
 %configure %{configure_options}
+if %{defined make_build}
 %{make_build}
+%else
+%{__make} %{?_smp_mflags}
+%endif
 
 
 #############################################################################
